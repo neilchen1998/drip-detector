@@ -1,5 +1,12 @@
 # Drip Detector
 
+## Packages
+
+### tqdm
+
+[tqdm](https://github.com/tqdm/tqdm) is a fast progress bar tool in CLI written in Python.
+It shows progress bars and the overhead is low.
+
 ## Apple Silicon Acceleration
 
 In order to utilize the GPU on Mac, install the following packages with **conda**:
