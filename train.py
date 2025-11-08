@@ -1,15 +1,21 @@
 import torch
 
-def check_mps_support():
-    '''Check if MPS is found'''
+def get_device_type():
+    '''Get the device type'''
 
-    if torch.backends.mps.is_available():
-        mps_device = torch.device("mps")
-        x = torch.ones(1, device=mps_device)
-        print (x)
+    # Check for CUDA GPU
+    if torch.cuda.is_available():
+        DEVICE = 'cuda'
+        print("CUDA GPU detected.")
+    elif torch.backends.mps.is_available():
+        DEVICE = 'mps'
+        print("Apple Silicon GPU detected.")
     else:
-        print ("WARNING: MPS device not found.")
+        DEVICE = 'cpu'
+        print("WARNING: No GPU detected. Using CPU.")
+
+    return DEVICE
 
 if __name__ == '__main__':
 
-    check_mps_support()
+    print(f"Device type: {get_device_type()}")
