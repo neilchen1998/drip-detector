@@ -15,7 +15,9 @@ def get_device_type():
         print("WARNING: No GPU detected. Using CPU.")
 
     return DEVICE
+# the path of fashionpedia dataset on 🤗 Hugging Face
+HF_DATASET_PATH = "detection-datasets/fashionpedia"
 
 if __name__ == '__main__':
 
-    print(f"Device type: {get_device_type()}")
+    _ = download_dataset(HF_DATASET_PATH)
