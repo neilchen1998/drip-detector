@@ -1,6 +1,7 @@
 from datasets import load_dataset
 from pathlib import Path
 from tqdm import tqdm
+import shutil
 import os
 
 def prepare_data_dir(data_dir: Path):
@@ -24,7 +25,7 @@ def download_dataset(path: str):
     '''Download the dataset from Hugging Face
 
     Parameters:
-        path: the path of the dataset
+        path: the source of the dataset
     '''
 
     try:
@@ -86,44 +87,41 @@ def convert_to_yolo_format(dataset, dir: Path, split: str, N = -1):
             x_center = x_min + box_width / 2
             y_center = y_min + box_height / 2
 
+            # Normalized the values
             x_center_norm = x_center / img_width
             y_center_norm = y_center / img_height
             box_width_norm = box_width / img_width
             box_height_norm = box_height / img_height
 
-            # Make sure normalized values are within [0.0, 1]
-            x_center_norm = max(min(x_center_norm, 1.0), 0.0)
-            y_center_norm = max(min(y_center_norm, 1.0), 0.0)
-            box_width_norm = max(min(box_width_norm, 1.0), 0.0)
-            box_height_norm = max(min(box_height_norm, 1.0), 0.0)
+            # Append the values to the list
+            label_lines.append(f"{class_idx} {x_center_norm:.6f} {y_center_norm:.6f} {box_width_norm:.6f} {box_height_norm:.6f}")
 
-            # Get the category ID
-            class_idx = category_id
+        label_filename = f"{example['image_id']}.txt"
+        (label_dir/label_filename).write_text('\n'.join(label_lines))
 
-            label_line = f"{class_idx} {x_center_norm:.6f} {y_center_norm:.6f} {box_width_norm:.6f} {box_height_norm:.6f}"
-            label_lines.append(label_line)
-
-        if label_lines:
-            label_filename = f"{example['image_id']}.txt"
-            (label_dir/label_filename).write_text('\n'.join(label_lines))
-
-        if i > N:
-            print(f"Stop after processing {N} data points.\n")
+        if i >= (N - 1):
             break
 
-    return
+    print(f"Processed {N} images in {split} split.")
 
-def prepare_data_pipeline(dir: str):
-    '''
+def prepare_data_pipeline(dir: str, N = 200):
+    '''Download the dataset and convert it to YOLO's format
 
     Parameters:
-        dir: the directory of YOLO dataset
+        dir: the source of YOLO dataset
+        N: the number of samples
     '''
 
-    YOLO_DATA_DIR = Path('fashionpedia_yolo')
+    YOLO_DATA_DIR = 'fashionpedia_yolo'
+
+    # Check if the directory exists
+    if os.path.exists(YOLO_DATA_DIR):
+        shutil.rmtree(YOLO_DATA_DIR)
+        print(f"Removed {YOLO_DATA_DIR}.\n")
+
     dataset = download_dataset(dir)
-    prepare_data_dir(YOLO_DATA_DIR)
-    convert_to_yolo_format(dataset, YOLO_DATA_DIR, 'train')
-    convert_to_yolo_format(dataset, YOLO_DATA_DIR, 'val')
+    prepare_data_dir(Path(YOLO_DATA_DIR))
+    convert_to_yolo_format(dataset, Path(YOLO_DATA_DIR), 'train', N)
+    convert_to_yolo_format(dataset, Path(YOLO_DATA_DIR), 'val', N)
 
     return
