@@ -1,5 +1,6 @@
 import torch
 from pathlib import Path
+from ultralytics import YOLO
 
 from utils.data.downloader import prepare_data_pipeline
 from utils.torch.info import get_device_type
@@ -7,6 +8,14 @@ from utils.ultralytics.config import create_yolo_yaml
 
 # the path of fashionpedia dataset on 🤗 Hugging Face
 HF_DATASET_PATH = "detection-datasets/fashionpedia"
+
+# Model parameters
+MODEL_NAME = 'yolov8n.pt'
+
+# Training parameters
+EPOCHS = 30
+IMG_SIZE = 640
+BATCH_SIZE = 16
 
 # the directory of YOLO
 YOLO_DATA_DIR = Path('fashionpedia_yolo')
@@ -39,3 +48,20 @@ if __name__ == '__main__':
         prepare_data_pipeline(HF_DATASET_PATH)
 
     config_path = create_yolo_yaml(YOLO_DATA_DIR, FASHIONPEDIA_CLASSES)
+
+    try:
+        # Load a pretrained YOLO model by model name
+        model = YOLO(MODEL_NAME)
+
+        # Train the model
+        result = model.train(
+            data=config_path,
+            epochs=EPOCHS,
+            imgsz=IMG_SIZE,
+            batch=BATCH_SIZE,
+            name='yolov8n_fashionpedia',
+            device=get_device_type(),
+            plots=False
+        )
+    except Exception as e:
+        print(f"Error: {e}\n")
