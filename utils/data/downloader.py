@@ -94,7 +94,7 @@ def convert_to_yolo_format(dataset, dir: Path, split: str, N = -1):
             box_height_norm = box_height / img_height
 
             # Append the values to the list
-            label_lines.append(f"{class_idx} {x_center_norm:.6f} {y_center_norm:.6f} {box_width_norm:.6f} {box_height_norm:.6f}")
+            label_lines.append(f"{category_id} {x_center_norm:.6f} {y_center_norm:.6f} {box_width_norm:.6f} {box_height_norm:.6f}")
 
         label_filename = f"{example['image_id']}.txt"
         (label_dir/label_filename).write_text('\n'.join(label_lines))
