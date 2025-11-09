@@ -16,9 +16,9 @@ def create_yolo_yaml(dir: Path, class_names: list):
 
     yaml_content = {
         'path': str(dir.resolve()), # make the path absolute
-        'train': 'image/train',
-        'val': 'image/val',
-        'test': 'image/test',
+        'train': 'images/train',
+        'val': 'images/val',
+        'test': 'images/test',
         'nc': len(class_names), # the number of the classes
         'names': class_names,
     }
