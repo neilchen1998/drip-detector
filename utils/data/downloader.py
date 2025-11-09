@@ -6,7 +6,8 @@ import os
 def prepare_data_dir(data_dir: Path):
     '''Prepare
 
-    data_dir: the path of the dataset
+    Parameters:
+        data_dir: the path of the dataset
     '''
 
     # Create the main directory
@@ -22,7 +23,8 @@ def prepare_data_dir(data_dir: Path):
 def download_dataset(path: str):
     '''Download the dataset from Hugging Face
 
-    path: the path of the dataset
+    Parameters:
+        path: the path of the dataset
     '''
 
     try:
@@ -36,10 +38,11 @@ def download_dataset(path: str):
 def convert_to_yolo_format(dataset, dir: Path, split: str, N = -1):
     '''Download the dataset from Hugging Face
 
-    dataset: the dataset
-    dir: the directory of the dataset
-    split: the name of the split (train, validation, etc.)
-    N: the number of images (-1 will include all images)
+    Parameters:
+        dataset: the dataset
+        dir: the directory of the dataset
+        split: the name of the split (train, validation, etc.)
+        N: the number of images (-1 will include all images)
     '''
 
     # Construct the filepaths
@@ -52,7 +55,7 @@ def convert_to_yolo_format(dataset, dir: Path, split: str, N = -1):
     else:
         N = min(N, len(dataset[split]))
 
-    # Clear
+    # Convert the data to YOLO format
     for i, example in enumerate(tqdm(dataset[split], desc=f"Processing {split} data")):
 
         # Image extraction
@@ -110,10 +113,15 @@ def convert_to_yolo_format(dataset, dir: Path, split: str, N = -1):
 
     return
 
-def prepare_data_pipeline(path: str):
+def prepare_data_pipeline(dir: str):
+    '''
+
+    Parameters:
+        dir: the directory of YOLO dataset
+    '''
 
     YOLO_DATA_DIR = Path('fashionpedia_yolo')
-    dataset = download_dataset(path)
+    dataset = download_dataset(dir)
     prepare_data_dir(YOLO_DATA_DIR)
     convert_to_yolo_format(dataset, YOLO_DATA_DIR, 'train')
     convert_to_yolo_format(dataset, YOLO_DATA_DIR, 'val')

@@ -1,7 +1,11 @@
 import torch
 
 def get_device_type():
-    '''Get the device type'''
+    '''Get the device type
+
+    Returns:
+        str: the device type
+    '''
 
     # Check for CUDA GPU
     if torch.cuda.is_available():
