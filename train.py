@@ -43,9 +43,15 @@ if __name__ == '__main__':
     data_exists = TRAIN_LABEL_DIR.exists() and bool(next(TRAIN_LABEL_DIR.glob('*.txt'), None))
 
     if data_exists:
-        print(f"Skipping download and conversion since labels exist in {TRAIN_LABEL_DIR}.\n")
+        print("Dataset is already ready.\n")
+        user_input = input("Redownload dataset? (y/n): ").lower()
+        print("\n")
+
+    # Check if dataset already exists and the user do not want to re-download the dataset
+    if data_exists and user_input == 'n':
+        print("User does not want to redownload.\n")
     else:
-        prepare_data_pipeline(HF_DATASET_PATH)
+        prepare_data_pipeline(HF_DATASET_PATH, 100)
 
     config_path = create_yolo_yaml(YOLO_DATA_DIR, FASHIONPEDIA_CLASSES)
 
