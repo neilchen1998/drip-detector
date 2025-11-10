@@ -31,6 +31,82 @@ FASHIONPEDIA_CLASSES = [
     'flat shoe', 'jewelry', 'bra', 'leggings', 'polo shirt', 'hoodie', 'belt bag'
 ]
 
+def setup_model(model_name: str):
+    """Initializes YOLO model
+
+    Parameter:
+        model_name: the name of the model
+
+    Return:
+        the YOLO model
+    """
+
+    model = YOLO(model_name)
+
+    return model
+
+def train_mode(model, config_path: str):
+    '''Train the model
+
+    Parameters:
+        model: the model
+        config_path: the path of the YOLO YAML
+
+    Returns:
+        None: the result
+    '''
+
+    # Train the model
+    result = model.train(
+        data=config_path,
+        epochs=EPOCHS,
+        imgsz=IMG_SIZE,
+        batch=BATCH_SIZE,
+        name='yolov8n_fashionpedia',
+        device=get_device_type(),   # uses the GPU to train the model if available
+        patience=10,
+        save=True,
+        pretrained=True,
+        optimizer='Adam',
+        verbose=True,
+        plots=True,
+
+        # Augmentation
+        hsv_h=0.015,
+        hsv_s=0.7,
+        hsv_v=0.4,
+        degrees=0.0,
+        translate=0.1,
+        scale=0.5,
+        shear=0.0,
+        perspective=0.0,
+        flipud=0.0,
+        fliplr=0.5,
+        mosaic=1.0,
+    )
+
+    return result
+
+def validate_model(model, config_path: str):
+    '''Validate the model
+
+    Parameters:
+        model: the model
+        config_path: the path of the YOLO YAML
+
+    Returns:
+        None: the result
+    '''
+
+    metrics = model.val(data=str(config_path))
+
+    # Print the results
+    print("Validation results:")
+    print(f"mAP50: {metrics.box.map50:.4f}")
+    print(f"mAP50-95: {metrics.box.map:.4f}")
+
+    return metrics
+
 if __name__ == '__main__':
 
     # Check if the required directory exists and at least one text file is present
@@ -51,23 +127,15 @@ if __name__ == '__main__':
     if data_exists and user_input == 'n':
         print("User does not want to redownload.\n")
     else:
-        prepare_data_pipeline(HF_DATASET_PATH, 100)
+        prepare_data_pipeline(HF_DATASET_PATH, 600)
 
     config_path = create_yolo_yaml(YOLO_DATA_DIR, FASHIONPEDIA_CLASSES)
 
-    try:
-        # Load a pretrained YOLO model by model name
-        model = YOLO(MODEL_NAME)
+    # Set up the model
+    model = setup_model(MODEL_NAME)
 
-        # Train the model
-        result = model.train(
-            data=config_path,
-            epochs=EPOCHS,
-            imgsz=IMG_SIZE,
-            batch=BATCH_SIZE,
-            name='yolov8n_fashionpedia',
-            device=get_device_type(),
-            plots=False
-        )
-    except Exception as e:
-        print(f"Error: {e}\n")
+    # Train the model
+    train_mode(model, config_path)
+
+    # Validate the model
+    validate_model(model, config_path)
