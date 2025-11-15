@@ -2,6 +2,9 @@ from ultralytics import YOLO
 from pathlib import Path
 import sys
 
+# The confidence score
+CONFIDENCE_SCORE = 0.6
+
 def check_image_directory(pic_dir_path: str):
     """Checks if the given picture directory exists and contains at least one image
 
@@ -11,10 +14,12 @@ def check_image_directory(pic_dir_path: str):
 
     pic_dir = Path(pic_dir_path)
 
-    if not pic_dir.exists() or not pic_dir.is_dir():
+    # Check if the parameter is a directory and if it exists
+    if not pic_dir.is_dir() or not pic_dir.exists():
         print(f"Error: {pic_dir_path} does not exist.\n")
         return False
 
+    # Check if there is at least one image in the directory
     if not any(f.suffix.lower() in ['.jpg', '.jpeg', '.png'] for f in pic_dir.iterdir() if f.is_file()):
         print(f"Error: {pic_dir_path} does not contain at least one image.\n")
         return False
@@ -26,7 +31,7 @@ def main():
     pic_dir_path = "inference/"
     weights_path = "runs/detect/yolov8n_fashionpedia13/weights/best.pt"
 
-    # Check if the weight file exists
+    # Check if there is at least one image in the directory
     if not check_image_directory(pic_dir_path):
         return
 
@@ -39,7 +44,7 @@ def main():
     model = YOLO(weights_path)
 
     # Predict the images in batches
-    results = model.predict(Path(pic_dir_path), conf=0.4)
+    results = model.predict(Path(pic_dir_path), conf=CONFIDENCE_SCORE)
 
     for i, result in enumerate(results):
 
