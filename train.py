@@ -6,6 +6,7 @@ import argparse
 from utils.data.downloader import prepare_data_pipeline
 from utils.torch.info import get_device_type
 from utils.ultralytics.config import create_yolo_yaml
+from utils.helper import print_info
 
 # the path of fashionpedia dataset on 🤗 Hugging Face
 HF_DATASET_PATH = "detection-datasets/fashionpedia"

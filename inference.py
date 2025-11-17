@@ -1,15 +1,19 @@
 from ultralytics import YOLO
 from pathlib import Path
-import sys
+import argparse
 
-# The confidence score
+from utils.helper import print_info
+
+# The default values
 CONFIDENCE_SCORE = 0.6
+TARGET_DIRECTORY = "inference/"
+WEIGHTS_FILEPATH = "runs/detect/yolov8n_fashionpedia14/weights/best.pt"
 
 def check_image_directory(pic_dir_path: str):
     """Checks if the given picture directory exists and contains at least one image
 
     Parameter:
-        pic_dir_path: the directory of the picture
+        pic_dir_path: the directory of the picture(s)
     """
 
     pic_dir = Path(pic_dir_path)
@@ -26,10 +30,14 @@ def check_image_directory(pic_dir_path: str):
 
     return True
 
-def main():
+def inference(weights_path: str, pic_dir_path: str, conf=CONFIDENCE_SCORE):
+    """Inferences all pictures in the given directory with the given weights
 
-    pic_dir_path = "inference/"
-    weights_path = "runs/detect/yolov8n_fashionpedia13/weights/best.pt"
+    Parameter:
+        weights_path: the filepath of the weights
+        pic_dir_path: the directory of the picture(s)
+        conf: the confidence score (must be between 0.0 and 1.0)
+    """
 
     # Check if there is at least one image in the directory
     if not check_image_directory(pic_dir_path):
@@ -40,13 +48,17 @@ def main():
         print(f"Error: {weights_path} does not exist.\n")
         return
 
+    if conf > 1.0 or conf < 0.0:
+        print(f"Error: confidence score must be between 0.0 and 1.0.\n")
+        return
+
     # Load the model
     model = YOLO(weights_path)
 
     # Predict the images in batches
-    results = model.predict(Path(pic_dir_path), conf=CONFIDENCE_SCORE)
+    results = model.predict(Path(pic_dir_path), conf=conf)
 
-    for i, result in enumerate(results):
+    for result in results:
 
         # Retreive the filename
         img_path = result.path
@@ -63,4 +75,41 @@ def main():
 
 if __name__ == '__main__':
 
-    main()
+    # Parse the user's arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--weights_filepath',
+        type=str,
+        default=WEIGHTS_FILEPATH,
+        help="The filepath of the weights"
+    )
+    parser.add_argument(
+        '--target_directory',
+        type=str,
+        default=TARGET_DIRECTORY,
+        help="The target directory."
+    )
+    parser.add_argument(
+        '--conf',
+        type=float,
+        default=CONFIDENCE_SCORE,
+        help=f"The confidence score (default: {CONFIDENCE_SCORE})"
+    )
+    args = parser.parse_args()
+
+    # Access and print the argument values
+    weights_filepath = args.weights_filepath
+    target_directory = args.target_directory
+    conf = args.conf
+
+    title = "Inference"
+
+    lines = [
+        f"The filepath of the weights: {weights_filepath}",
+        f"The target directory: {target_directory}",
+        f"The confidence score: {conf}"
+    ]
+
+    print_info(title, lines)
+
+    inference(weights_filepath, target_directory, conf)
