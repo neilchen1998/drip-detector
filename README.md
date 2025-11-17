@@ -43,6 +43,12 @@ If the weights or the images that you want to inference is stored somewhere else
 python3 ./inference.py --weights <weights_filepath> --target <target_directory>
 ```
 
+The default confidence score is *0.6*, if you want to change the confidence score, add an additional argument:
+
+```zsh
+python3 ./inference.py --conf <confidence_score>
+```
+
 ## Packages
 
 ### ultralytics
