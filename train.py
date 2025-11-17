@@ -1,6 +1,7 @@
 import torch
 from pathlib import Path
 from ultralytics import YOLO
+import argparse
 
 from utils.data.downloader import prepare_data_pipeline
 from utils.torch.info import get_device_type
@@ -13,9 +14,10 @@ HF_DATASET_PATH = "detection-datasets/fashionpedia"
 MODEL_NAME = 'yolov8n.pt'
 
 # Training parameters
+TRAINING_IMG_SZ = 600
 EPOCHS = 30
 IMG_SIZE = 640
-BATCH_SIZE = 16
+BATCH_SIZE = 8  # Does not work if the batch size is bigger than 8 on my Mac mini
 
 # the directory of YOLO
 YOLO_DATA_DIR = Path('fashionpedia_yolo')
@@ -109,6 +111,20 @@ def validate_model(model, config_path: str):
 
 if __name__ == '__main__':
 
+    # Parse the user's input
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--sz',
+        type=int,
+        default=TRAINING_IMG_SZ,
+        help=f"The number of images for training. (default: {TRAINING_IMG_SZ})"
+    )
+    args = parser.parse_args()
+
+    # Access and print the argument value (the number of images for training)
+    training_img_size = args.sz
+    print(f"The number of images for training: {training_img_size}")
+
     # Check if the required directory exists and at least one text file is present
     # In order to check if there is at least one text file inside the directory,
     # we must use glob function to iterate over directory and yeild existing files
@@ -127,7 +143,7 @@ if __name__ == '__main__':
     if data_exists and user_input == 'n':
         print("User does not want to redownload.\n")
     else:
-        prepare_data_pipeline(HF_DATASET_PATH, 600)
+        prepare_data_pipeline(HF_DATASET_PATH, training_img_size)
 
     config_path = create_yolo_yaml(YOLO_DATA_DIR, FASHIONPEDIA_CLASSES)
 
