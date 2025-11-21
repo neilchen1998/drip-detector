@@ -1,5 +1,5 @@
-from ultralytics import YOLO
-from pathlib import Path
+from ultralytics import YOLO   
+from pathlib import Path	
 import argparse
 
 from utils.helper import print_info
