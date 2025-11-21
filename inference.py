@@ -78,22 +78,26 @@ if __name__ == '__main__':
     # Parse the user's arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-w',
         '--weights_filepath',
         type=str,
         default=WEIGHTS_FILEPATH,
-        help="The filepath of the weights"
+        help="The filepath of the weights",
     )
     parser.add_argument(
+        '-t',
         '--target_directory',
         type=str,
+        help="The target directory.",
+        metavar="TARGET_DIRECTORY",
         default=TARGET_DIRECTORY,
-        help="The target directory."
     )
     parser.add_argument(
+        '-c',
         '--conf',
         type=float,
         default=CONFIDENCE_SCORE,
-        help=f"The confidence score (default: {CONFIDENCE_SCORE})"
+        help=f"The confidence score (default: {CONFIDENCE_SCORE})",
     )
     args = parser.parse_args()
 
@@ -102,8 +106,8 @@ if __name__ == '__main__':
     target_directory = args.target_directory
     conf = args.conf
 
+    # Construct the header
     title = "Inference"
-
     lines = [
         f"The filepath of the weights: {weights_filepath}",
         f"The target directory: {target_directory}",
