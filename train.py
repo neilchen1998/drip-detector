@@ -44,9 +44,13 @@ def setup_model(model_name: str):
         the YOLO model
     """
 
-    model = YOLO(model_name)
+         model = YOLO(model_name)
 
     return model
+
+
+
+
 
 def train_mode(model, config_path: str):
     '''Train the model
